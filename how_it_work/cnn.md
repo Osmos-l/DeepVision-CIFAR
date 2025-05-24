@@ -1,24 +1,32 @@
 # Convolutional Neural Network - CNN
-Type particulier de réseau de neurones artificiels trés utilisé pour traiter des données structurées en grille, comme des images.
+
+Un CNN est un type particulier de réseau de neurones artificiels très utilisé pour traiter des données structurées en grille, comme les images.
 
 ## Objectif
-Extraire automatiquement des caractéristiques (features) importantes d'une image, comme les bords, formes, textures, ...
 
-## Comment ça marche 
+L'objectif principal est d'extraire automatiquement des caractéristiques importantes d'une image, telles que les bords, les formes, les textures, etc.
+
+## Principe de fonctionnement
 
 ### Convolution
-C'est l'opération clé. Le réseau applique des petits filtres qui glissent sur l'image pour détecter des motifs locaux.
+
+C'est l'opération fondamentale du CNN. Le réseau applique des petits filtres (ou noyaux) qui glissent sur l'image afin de détecter des motifs locaux.
 
 ### Couches de convolution
-Plusieurs couches successices extraient des caractéristiques de plus en plus complexes et abstraites. Les premières couches détectent
-des bords et textures simples, les couches profodents capturent des formes complexes ou objets entiers.
+
+Plusieurs couches convolutionnelles sont empilées pour extraire des caractéristiques de complexité croissante. Les premières couches détectent des bords ou des textures simples, tandis que les couches plus profondes capturent des formes complexes ou même des objets entiers.
 
 ### Pooling
-Pour réduire la taille de l'image et rendre le réseau plus robuste aux petites translation, on applique souvent une opération de pooling
-qui résume une zone en une valeur représentatives.
+
+Pour réduire la taille des représentations intermédiaires et rendre le modèle plus robuste aux petites translations, on applique souvent des opérations de pooling (comme le max pooling), qui condensent une zone en une seule valeur représentative.
 
 ### Couches pleinement connectées
-En fin de réseau, on utilise souvent des couches classiques pour faire la classification finale à partir des caractéristiques extraites.
 
-On dire qu'un CNN = [Couches convolutionnelles + Pooling] + Couches pleinement connectés (ex: MLP)
-**Il s'agit d'une banalisation**
+En fin de réseau, des couches pleinement connectées (semblables à un MLP) sont généralement utilisées pour effectuer la classification finale à partir des caractéristiques extraites.
+
+---
+
+On peut schématiquement résumer un CNN par la formule suivante :  
+**CNN = [Couches convolutionnelles + Pooling] + Couches pleinement connectées (ex : MLP)**
+
+*Note : il s'agit d'une simplification qui ne couvre pas toutes les variantes et optimisations possibles.*
