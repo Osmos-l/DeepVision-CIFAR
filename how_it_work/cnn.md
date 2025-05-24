@@ -2,6 +2,8 @@
 
 Un CNN est un type particulier de réseau de neurones artificiels très utilisé pour traiter des données structurées en grille, comme les images.
 
+![alt text](images/cnn.png)
+
 ## Objectif
 
 L'objectif principal est d'extraire automatiquement des caractéristiques importantes d'une image, telles que les bords, les formes, les textures, etc.
@@ -30,3 +32,9 @@ On peut schématiquement résumer un CNN par la formule suivante :
 **CNN = [Couches convolutionnelles + Pooling] + Couches pleinement connectées (ex : MLP)**
 
 *Note : il s'agit d'une simplification qui ne couvre pas toutes les variantes et optimisations possibles.*
+
+## Ressources
+
+- [Vidéo explicative sur les CNN](https://www.youtube.com/watch?v=zG_5OtgxfAg)  
+- Livre **Deep Learning** de Ian Goodfellow, Yoshua Bengio et Aaron Courville  
+- Livre **Quand la machine apprend** de Yann LeCun  
