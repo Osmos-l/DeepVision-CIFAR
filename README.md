@@ -7,8 +7,8 @@ Ce projet a pour but d’explorer en profondeur les mécanismes fondamentaux des
 ---
 ## 📚 Documentation
 
-- [CIFAR-10](./how_it_work/cnn.md)
-- [CNN](./how_it_work/cnn.md)
+- [CIFAR-10 - DataSet](./how_it_work/cifar_10.md)
+- [CNN - Model](./how_it_work/cnn.md)
 
 *Couches du CNN*
 - [Conv2D](./how_it_work/layers/conv2d.md)
