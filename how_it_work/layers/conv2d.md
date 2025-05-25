@@ -2,6 +2,8 @@
 
 La couche **Conv2D** applique une **convolution sur deux dimensions spatiales** (hauteur × largeur), ce qui est parfaitement adapté au traitement des images.
 
+![alt text](../images/conv2d.png)
+
 ## Fonctionnement
 
 Un filtre (ou noyau) glisse sur l’image d’entrée pour détecter des motifs locaux (bords, textures, formes, etc.). Plusieurs filtres permettent d’extraire différentes caractéristiques visuelles.
