@@ -2,7 +2,7 @@
 
 La fonction **ReLU** est l'une des fonctions d'activation les plus utilisées dans les réseaux de neurones modernes, en particulier dans les **CNN**.
 
-![alt text](images/relu.png)
+![alt text](../images/relu.png)
 
 ## Définition
 
