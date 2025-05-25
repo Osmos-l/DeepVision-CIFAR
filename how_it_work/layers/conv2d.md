@@ -30,6 +30,7 @@ Un filtre (ou noyau) glisse sur l’image d’entrée pour détecter des motifs 
 
 ## Poids
 out_channels = 8, in_channels = 3, kernel_size = 3
+```
 ┌────────────────────────────┐
 │ Filtre 1                   │
 │ ┌─────────┐               │
@@ -47,3 +48,4 @@ out_channels = 8, in_channels = 3, kernel_size = 3
 ├────────────────────────────┤
 │ ... jusqu'à filtre 8       │
 └────────────────────────────┘
+```
