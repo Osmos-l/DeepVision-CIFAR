@@ -5,6 +5,14 @@ Un projet d’implémentation **from scratch** d’un CNN (Convolutional Neural 
 Ce projet a pour but d’explorer en profondeur les mécanismes fondamentaux des réseaux convolutifs, sans utiliser de frameworks lourds, afin de mieux comprendre la théorie et la pratique derrière la vision par ordinateur.
 
 ---
+## 📚 Documentation
+
+- [CIFAR-10](./how_it_work/cnn.md)
+- [CNN](./how_it_work/cnn.md)
+
+*Couches du CNN*
+- [Conv2D](./how_it_work/layers/conv2d.md)
+- [ReLU](./how_it_work/layers/relu.md)
 
 ## Dataset
 
