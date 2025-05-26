@@ -13,6 +13,9 @@ Ce projet a pour but d’explorer en profondeur les mécanismes fondamentaux des
 *Couches du CNN*
 - [Conv2D](./how_it_work/layers/conv2d.md)
 - [ReLU](./how_it_work/layers/relu.md)
+- [MaxPool2D](./how_it_work/layers/maxpool2d.md)
+- [Flatten](./how_it_work/layers/flatten.md)
+- [Dense](./how_it_work/layers/dense.md)
 
 ---
 ## Contributions
