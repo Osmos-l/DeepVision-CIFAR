@@ -33,6 +33,69 @@ On peut schématiquement résumer un CNN par la formule suivante :
 
 *Note : il s'agit d'une simplification qui ne couvre pas toutes les variantes et optimisations possibles.*
 
+## Architecture fonctionnelle
+```
+Image RGB (3 canaux, 32×32)
+│
+▼
+┌───────────────────────────────┐
+│ Conv2D(in=3, out=8, k=3, s=1, p=1) │ <-- Extraction de motifs locaux (bords, textures)
+└───────────────────────────────┘
+│
+▼
+┌─────────────┐
+│ ReLU │ <-- Activation non-linéaire
+└─────────────┘
+│
+▼
+┌───────────────────┐
+│ MaxPool2D(k=2, s=2) │ <-- Réduction de la taille spatiale (32×32 → 16×16)
+└───────────────────┘
+│
+▼
+┌───────────────────────────────┐
+│ Conv2D(in=8, out=16, k=3, s=1, p=1) │ <-- Extraction de motifs plus complexes
+└───────────────────────────────┘
+│
+▼
+┌─────────────┐
+│ ReLU │
+└─────────────┘
+│
+▼
+┌───────────────────┐
+│ MaxPool2D(k=2, s=2) │ <-- Réduction de la taille spatiale (16×16 → 8×8)
+└───────────────────┘
+│
+▼
+┌───────────────┐
+│ Flatten │ <-- Transformation 3D → 1D (8×8×16 = 1024)
+└───────────────┘
+│
+▼
+┌─────────────────────────┐
+│ Dense(input=1024, output=64) │ <-- Combinaison des caractéristiques en vecteur compact
+└─────────────────────────┘
+│
+▼
+┌─────────────┐
+│ ReLU │
+└─────────────┘
+│
+▼
+┌────────────────────────┐
+│ Dense(input=64, output=10) │ <-- Sortie finale : scores pour les 10 classes
+└────────────────────────┘
+│
+▼
+┌─────────────┐
+│ Softmax │ <-- Conversion en probabilités
+└─────────────┘
+│
+▼
+Classification (10 classes)
+```
+
 ## Ressources
 
 - [Vidéo explicative sur les CNN](https://www.youtube.com/watch?v=zG_5OtgxfAg)  
