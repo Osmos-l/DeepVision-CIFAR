@@ -35,3 +35,30 @@ def __init__(self, kernel_size=2, stride=2):
                         out[image_index, i, j, channel] = np.max(patch)
 
         return out
+
+    def backward(self, dout):
+    batch_size, h_in, w_in, channels = self.input.shape
+    _, h_out, w_out, _ = dout.shape
+
+    dx = np.zeros_like(self.input)  # Initialize gradient for input with zeros
+
+    for image_index in range(batch_size):
+        for c in range(channels):
+            for i in range(h_out):
+                for j in range(w_out):
+                    h_start = i * self.stride
+                    w_start = j * self.stride
+
+                    # Extract patch from input
+                    patch = self.input[image_index, 
+                                        h_start:(h_start + self.kernel_size), 
+                                        w_start:(w_start + self.kernel_size), 
+                                        c]
+
+                    # Find the index of max value in the patch
+                    max_index = np.unravel_index(np.argmax(patch, axis=None), patch.shape)
+
+                    # Assign the gradient from dout only to the position of the max
+                    dx[image_index, h_start + max_index[0], w_start + max_index[1], c] += dout[image_index, i, j, c]
+
+    return dx
