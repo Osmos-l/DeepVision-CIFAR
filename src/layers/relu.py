@@ -9,7 +9,7 @@ class ReLU:
         return np.maximum(0, x)
 
     def backward(self, dout):
-        dx = dout.copy()
+        dx = dout
 
         # Gradient of ReLU is 1 for positive inputs, 0 for negative inputs
         # Example:

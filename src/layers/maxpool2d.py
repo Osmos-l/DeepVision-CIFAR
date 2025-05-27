@@ -1,10 +1,13 @@
+import numpy as np
+
 class MaxPool2D:
-def __init__(self, kernel_size=2, stride=2):
+    def __init__(self, kernel_size=2, stride=2):
         self.kernel_size = kernel_size
         self.stride = stride
 
     def forward(self, x):
-        batch_size, h_in, w_in, c = x.shape
+        self.input = x  # Save input for backward pass
+        batch_size, h_in, w_in, channels = x.shape
 
         # 1. Subtracting kernel size 
         # 2. Dividing by stride
@@ -12,7 +15,10 @@ def __init__(self, kernel_size=2, stride=2):
         h_out = int((h_in - self.kernel_size) / self.stride) + 1
         w_out = int((w_in - self.kernel_size) / self.stride) + 1
 
-        out = np.zeros((batch_size, h_out, w_out, c))
+        out = np.zeros((batch_size, h_out, w_out, channels))
+
+        # Adding padding to the input images
+        x_padded = np.pad(x, ((0, 0), (self.kernel_size // 2, self.kernel_size // 2), (self.kernel_size // 2, self.kernel_size // 2), (0, 0)), mode='constant')
 
         # For each image in the batch
         for image_index in range(batch_size):
@@ -37,28 +43,28 @@ def __init__(self, kernel_size=2, stride=2):
         return out
 
     def backward(self, dout):
-    batch_size, h_in, w_in, channels = self.input.shape
-    _, h_out, w_out, _ = dout.shape
+        batch_size, h_in, w_in, channels = self.input.shape
+        _, h_out, w_out, _ = dout.shape
 
-    dx = np.zeros_like(self.input)  # Initialize gradient for input with zeros
+        dx = np.zeros_like(self.input)  # Initialize gradient for input with zeros
 
-    for image_index in range(batch_size):
-        for c in range(channels):
-            for i in range(h_out):
-                for j in range(w_out):
-                    h_start = i * self.stride
-                    w_start = j * self.stride
+        for image_index in range(batch_size):
+            for c in range(channels):
+                for i in range(h_out):
+                    for j in range(w_out):
+                        h_start = i * self.stride
+                        w_start = j * self.stride
 
-                    # Extract patch from input
-                    patch = self.input[image_index, 
-                                        h_start:(h_start + self.kernel_size), 
-                                        w_start:(w_start + self.kernel_size), 
-                                        c]
+                        # Extract patch from input
+                        patch = self.input[image_index, 
+                                            h_start:(h_start + self.kernel_size), 
+                                            w_start:(w_start + self.kernel_size), 
+                                            c]
 
-                    # Find the index of max value in the patch
-                    max_index = np.unravel_index(np.argmax(patch, axis=None), patch.shape)
+                        # Find the index of max value in the patch
+                        max_index = np.unravel_index(np.argmax(patch, axis=None), patch.shape)
 
-                    # Assign the gradient from dout only to the position of the max
-                    dx[image_index, h_start + max_index[0], w_start + max_index[1], c] += dout[image_index, i, j, c]
+                        # Assign the gradient from dout only to the position of the max
+                        dx[image_index, h_start + max_index[0], w_start + max_index[1], c] += dout[image_index, i, j, c]
 
-    return dx
+        return dx

@@ -42,3 +42,55 @@ class CNN:
         for layer in self.layers:
             if hasattr(layer, 'update'):
                 layer.update(learning_rate)
+
+    def train(self, X_train, y_train, epochs, batch_size, learning_rate):
+        num_samples = X_train.shape[0]
+    
+        for epoch in range(epochs):
+            # Shuffle data at each epoch
+            indices = np.random.permutation(num_samples)
+            X_train = X_train[indices]
+            y_train = y_train[indices]
+            
+            epoch_loss = 0
+            correct = 0
+            
+            for start in range(0, num_samples, batch_size):
+                print(f"Epoch {epoch+1}/{epochs} : Processing batch {start // batch_size + 1}/{num_samples // batch_size + 1}", end='\r')
+
+                end = start + batch_size
+                x_batch = X_train[start:end]
+                y_batch = y_train[start:end]
+                
+                # Forward pass
+                outputs = self.forward(x_batch)
+                
+                # Compute loss and gradient
+                loss, dout = self.cross_entropy_loss(outputs, y_batch)
+                epoch_loss += loss
+                
+                # Backward pass
+                self.backward(dout)
+                
+                # Update weights
+                self.update(learning_rate)
+                
+                # Calculate accuracy
+                preds = np.argmax(outputs, axis=1)
+                correct += np.sum(preds == y_batch)
+            
+            accuracy = correct / num_samples
+            print(f"Epoch {epoch+1}/{epochs} — Loss: {epoch_loss:.4f} — Accuracy: {accuracy:.4f}")
+
+    def cross_entropy_loss(self, probs, labels):
+        batch_size = labels.shape[0]
+        eps = 1e-10  # pour éviter log(0)
+        correct_logprobs = -np.log(probs[np.arange(batch_size), labels] + eps)
+        loss = np.sum(correct_logprobs) / batch_size
+
+        # Gradient de la loss w.r.t. softmax input
+        dout = probs.copy()
+        dout[np.arange(batch_size), labels] -= 1
+        dout /= batch_size
+
+        return loss, dout

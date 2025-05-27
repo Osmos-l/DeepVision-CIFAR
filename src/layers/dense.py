@@ -6,6 +6,7 @@ class Dense:
         self.bias = np.zeros(output_dim)
 
     def forward(self, x):
+        self.input = x
         return np.dot(x, self.weights) + self.bias
 
     def backward(self, dout):
