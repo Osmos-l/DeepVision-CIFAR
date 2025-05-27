@@ -32,3 +32,13 @@ class CNN:
         for layer in self.layers:
             x = layer.forward(x)
         return x
+
+    def backward(self, dout):
+        for layer in reversed(self.layers):
+            dout = layer.backward(dout)
+        return dout
+
+    def update(self, learning_rate):
+        for layer in self.layers:
+            if hasattr(layer, 'update'):
+                layer.update(learning_rate)

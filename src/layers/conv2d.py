@@ -107,3 +107,7 @@ class Conv2D:
         self.db = db
         
         return dx
+
+    def update(self, learning_rate):
+        self.weights -= learning_rate * self.dW
+        self.bias -= learning_rate * self.db
