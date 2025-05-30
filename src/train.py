@@ -11,7 +11,7 @@ if __name__ == "__main__":
     y_test = y_test.flatten()
 
     # Reduce dataset size
-    subset_size = 500 
+    subset_size = 5000 
     X_train = X_train[:subset_size]
     y_train = y_train[:subset_size]
 
@@ -26,5 +26,10 @@ if __name__ == "__main__":
 
     model = CNN()
 
+    model.load_model("model.bin")
+
     # Train your model
-    model.train(X_train, y_train, epochs=50, batch_size=32, learning_rate=0.01)
+    model.train(X_train, y_train, epochs=10, batch_size=64, learning_rate=0.01)
+
+    model.save_model("model.bin")
+    print("Model training complete and weights saved to 'model.bin'.")

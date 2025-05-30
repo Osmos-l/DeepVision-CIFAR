@@ -20,3 +20,11 @@ class Dense:
     def update(self, learning_rate):
         self.weights -= learning_rate * self.dW
         self.bias -= learning_rate * self.db
+
+    def save_weights(self, f):
+        np.save(f, self.weights)
+        np.save(f, self.bias)
+
+    def load_weights(self, f):
+        self.weights = np.load(f)
+        self.bias = np.load(f)

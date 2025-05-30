@@ -94,3 +94,21 @@ class CNN:
         dout /= batch_size
 
         return loss, dout
+
+    def save_model(self, filepath):
+        with open(filepath, 'wb') as f:
+            for i, layer in enumerate(self.layers):
+                if hasattr(layer, 'save_weights'):
+                    layer_type = type(layer).__name__
+                    f.write(f"{i}:{layer_type}\n".encode())
+                    layer.save_weights(f)
+
+    def load_model(self, filepath):
+        with open(filepath, 'rb') as f:
+            for i, layer in enumerate(self.layers):
+                if hasattr(layer, 'load_weights'):
+                    ident = f.readline().decode().strip()
+                    expected = f"{i}:{type(layer).__name__}"
+                    if ident != expected:
+                        raise ValueError(f"Erreur de correspondance des couches : attendu {expected}, trouvé {ident}")
+                    layer.load_weights(f)
