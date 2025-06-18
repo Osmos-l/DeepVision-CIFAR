@@ -1,5 +1,43 @@
 import numpy as np
 
+def im2col(x, kernel_size, stride, padding):
+    # x: (batch, h_in, w_in, c_in)
+    batch, h_in, w_in, c_in = x.shape
+    h_out = (h_in + 2 * padding - kernel_size) // stride + 1
+    w_out = (w_in + 2 * padding - kernel_size) // stride + 1
+
+    x_padded = np.pad(x, ((0,0), (padding,padding), (padding,padding), (0,0)), mode='constant')
+    cols = np.zeros((batch, h_out, w_out, kernel_size, kernel_size, c_in))
+
+    for i in range(h_out):
+        for j in range(w_out):
+            h_start = i * stride
+            w_start = j * stride
+            cols[:, i, j, :, :, :] = x_padded[:, h_start:h_start+kernel_size, w_start:w_start+kernel_size, :]
+
+    # (batch, h_out, w_out, k, k, c) -> (batch*h_out*w_out, k*k*c)
+    cols = cols.reshape(batch * h_out * w_out, -1)
+    return cols, h_out, w_out
+
+def col2im(cols, x_shape, kernel_size, stride, padding):
+    # Inverse de im2col pour backward
+    batch, h_in, w_in, c_in = x_shape
+    h_out = (h_in + 2 * padding - kernel_size) // stride + 1
+    w_out = (w_in + 2 * padding - kernel_size) // stride + 1
+    x_padded = np.zeros((batch, h_in + 2*padding, w_in + 2*padding, c_in))
+
+    cols_reshaped = cols.reshape(batch, h_out, w_out, kernel_size, kernel_size, c_in)
+    for i in range(h_out):
+        for j in range(w_out):
+            h_start = i * stride
+            w_start = j * stride
+            x_padded[:, h_start:h_start+kernel_size, w_start:w_start+kernel_size, :] += cols_reshaped[:, i, j, :, :, :]
+
+    if padding == 0:
+        return x_padded
+    else:
+        return x_padded[:, padding:-padding, padding:-padding, :]
+
 class Conv2D:
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0):
         self.in_channels    = in_channels
@@ -18,106 +56,31 @@ class Conv2D:
 
     def forward(self, x):
         self.input = x  # Save input for backward pass
-        batch_size, h_in, w_in, c_in = x.shape
-        assert c_in == self.in_channels, f"Expected {self.in_channels} channels, got {c_in}"
-
-        # 1. Adding padding to the input dimensions
-        # 2. Subtracting kernel size 
-        # 3. Dividing by stride
-        # 4. Adding 1 for the output dimensions
-        h_out = int((h_in + 2 * self.padding - self.kernel_size) / self.stride) + 1
-        w_out = int((w_in + 2 * self.padding - self.kernel_size) / self.stride) + 1
-
-        # Adding padding to the input images
-        x_padded = np.pad(x, ((0,0), (self.padding,self.padding), (self.padding,self.padding), (0,0)), mode='constant')
-
-        # Output structure initialization
-        out = np.zeros((batch_size, h_out, w_out, self.out_channels))
-
-        # for each image in the batch
-        for image_index in range(batch_size):
-            # for each row of the output
-            for i in range(h_out):
-                # for each column of the output
-                for j in range(w_out):
-                    # for each output channel
-                    for oc in range(self.out_channels):
-
-                        h_start = i * self.stride
-                        w_start = j * self.stride
-
-                        patch = x_padded[image_index,                           # Selecting the image 
-                                        h_start:(h_start + self.kernel_size),   # Selecting the range of rows (height patch) in the image
-                                        w_start:(w_start + self.kernel_size),   # Selecting the range of columns (width patch) in the image
-                                        :self.in_channels]                      # Selecting all channels 
-
-                        patch_permuted = np.transpose(patch, (2,0,1))
-
-                        out[image_index, i, j, oc] = np.sum(patch_permuted * self.weights[oc]) + self.bias[oc]
-
+        cols, h_out, w_out = im2col(x, self.kernel_size, self.stride, self.padding)
+        W_col = self.weights.reshape(self.out_channels, -1)  # (out_channels, in_channels*k*k)
+        out = cols @ W_col.T + self.bias  # (batch*h_out*w_out, out_channels)
+        out = out.reshape(x.shape[0], h_out, w_out, self.out_channels)
+        self.cols = cols  # Pour backward
+        self.h_out = h_out
+        self.w_out = w_out
         return out
 
     def backward(self, dout):
-        batch_size, h_out, w_out, out_channels = dout.shape
-        _, h_in, w_in, in_channels = self.input.shape
-
-        # Initialize gradients with zeros
-        dW = np.zeros_like(self.weights)  # shape (out_channels, in_channels, k, k)
-        db = np.zeros(out_channels)
-        dx_padded = np.zeros((batch_size, h_in + 2 * self.padding, w_in + 2 * self.padding, in_channels))
-
-        # Pad the input
-        x_padded = np.pad(self.input,
-                        ((0, 0),
-                        (self.padding, self.padding),
-                        (self.padding, self.padding),
-                        (0, 0)),
-                        mode='constant')
-
-        # Compute gradients for weights and input
-        for image_index in range(batch_size):
-            for i in range(h_out):
-                for j in range(w_out):
-                    for oc in range(out_channels):
-                        h_start = i * self.stride
-                        w_start = j * self.stride
-
-                        # Extract the patch: shape (kernel_size, kernel_size, in_channels)
-                        patch = x_padded[image_index,
-                                        h_start:(h_start + self.kernel_size),
-                                        w_start:(w_start + self.kernel_size),
-                                        :]
-
-                        # patch has shape (k, k, in_channels), weights have shape (out_channels, in_channels, k, k)
-                        # We need to match axes: so transpose patch to (in_channels, k, k)
-                        patch_transposed = patch.transpose(2, 0, 1)  # now (in_channels, k, k)
-
-                        # Update gradient w.r.t weights: element-wise multiply patch with scalar dout and sum
-                        dW[oc] += patch_transposed * dout[image_index, i, j, oc]
-
-                        # Update gradient w.r.t input (padded)
-                        # weights[oc] shape: (in_channels, k, k), multiply by scalar dout
-                        # We transpose back weights[oc] to (k, k, in_channels) for dx_padded addition
-                        dx_padded[image_index,
-                                h_start:(h_start + self.kernel_size),
-                                w_start:(w_start + self.kernel_size),
-                                :] += (self.weights[oc].transpose(1, 2, 0)) * dout[image_index, i, j, oc]
-
-        # Remove padding from dx_padded to get dx shape (batch_size, h_in, w_in, in_channels)
-        if self.padding > 0:
-            dx = dx_padded[:, self.padding:-self.padding, self.padding:-self.padding, :]
-        else:
-            dx = dx_padded
-
-        # Gradient for biases: sum over batch and spatial dimensions
-        db = np.sum(dout, axis=(0, 1, 2))
-
-        # Store gradients
+        batch = self.input.shape[0]
+        # dout: (batch, h_out, w_out, out_channels)
+        dout_flat = dout.reshape(-1, self.out_channels)  # (batch*h_out*w_out, out_channels)
+        # Gradients w.r.t weights
+        dW = dout_flat.T @ self.cols  # (out_channels, k*k*in_channels)
+        dW = dW.reshape(self.weights.shape)
+        # Gradients w.r.t bias
+        db = np.sum(dout_flat, axis=0)
+        # Gradients w.r.t input
+        W_col = self.weights.reshape(self.out_channels, -1)
+        dcols = dout_flat @ W_col  # (batch*h_out*w_out, k*k*in_channels)
+        dx = col2im(dcols, self.input.shape, self.kernel_size, self.stride, self.padding)
         self.dW = dW
         self.db = db
-
         return dx
-
 
     def update(self, learning_rate):
         self.weights -= learning_rate * self.dW

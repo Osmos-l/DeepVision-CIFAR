@@ -80,6 +80,9 @@ class CNN:
                 correct += np.sum(preds == y_batch)
             
             accuracy = correct / num_samples
+
+            self.save_model("model.bin")
+
             print(f"Epoch {epoch+1}/{epochs} — Loss: {epoch_loss:.4f} — Accuracy: {accuracy:.4f}")
 
     def cross_entropy_loss(self, probs, labels):
@@ -112,3 +115,9 @@ class CNN:
                     if ident != expected:
                         raise ValueError(f"Erreur de correspondance des couches : attendu {expected}, trouvé {ident}")
                     layer.load_weights(f)
+    
+    def evaluate(self, X, y):
+        outputs = self.forward(X)
+        preds = np.argmax(outputs, axis=1)
+        accuracy = np.mean(preds == y)
+        return accuracy

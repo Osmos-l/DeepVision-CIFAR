@@ -11,9 +11,12 @@ if __name__ == "__main__":
     y_test = y_test.flatten()
 
     # Reduce dataset size
-    subset_size = 5000 
-    X_train = X_train[:subset_size]
-    y_train = y_train[:subset_size]
+    #subset_size = 1000
+    #X_train = X_train[:subset_size]
+    #y_train = y_train[:subset_size]
+
+    #X_test = X_test[:subset_size]
+    #y_test = y_test[:subset_size]
 
     # Calculate mean and std on training data (pixel-wise)
     mean = np.mean(X_train, axis=0)
@@ -28,8 +31,10 @@ if __name__ == "__main__":
 
     model.load_model("model.bin")
 
-    # Train your model
-    model.train(X_train, y_train, epochs=10, batch_size=64, learning_rate=0.01)
+    print(f'X_train.shape: {X_train.shape}')
 
-    model.save_model("model.bin")
-    print("Model training complete and weights saved to 'model.bin'.")
+    # Train your model
+    model.train(X_train, y_train, epochs=10, batch_size=256, learning_rate=0.1)
+
+    test_acc = model.evaluate(X_test, y_test)
+    print(f"Test accuracy after training: {test_acc:.4f}")
