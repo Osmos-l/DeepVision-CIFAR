@@ -83,7 +83,7 @@ class CNN:
 
             self.save_model("model.bin")
 
-            print(f"Epoch {epoch+1}/{epochs} — Loss: {epoch_loss:.4f} — Accuracy: {accuracy:.4f}")
+            print(f"Epoch {epoch+1}/{epochs} — Loss: {epoch_loss/num_samples:.4f} — Accuracy: {accuracy:.4f}")
 
     def cross_entropy_loss(self, probs, labels):
         batch_size = labels.shape[0]
